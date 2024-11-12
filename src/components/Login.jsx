@@ -1,12 +1,22 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authContext } from "./Provider/AuthProvider";
 import { Result } from "postcss";
 
 const Login = () => {
   // login with email and password
-  const { singInUser } = useContext(authContext);
-
+  const { singInUser, signInWithGoogle } = useContext(authContext);
+  const navigate = useNavigate();
+  const handleWithGoogle = () => {
+    signInWithGoogle()
+      .then((result) => {
+        console.log(result.user);
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log("error", error.message);
+      });
+  };
   // login for create user
   const handleLogin = (e) => {
     e.preventDefault();
@@ -16,6 +26,8 @@ const Login = () => {
     singInUser(email, password)
       .then((result) => {
         console.log(result.user);
+        e.target.reset();
+        navigate("/");
       })
       .catch((error) => {
         console.log("email and password", error.message);
@@ -62,6 +74,11 @@ const Login = () => {
             <div className="form-control mt-6">
               <button className="btn btn-primary">Login</button>
             </div>
+            <p>
+              <button onClick={handleWithGoogle} className="btn btn-accent">
+                Google Sign In
+              </button>
+            </p>
           </form>
           <p className="text-center p-6 mb-8">
             New To This Website? Please{" "}

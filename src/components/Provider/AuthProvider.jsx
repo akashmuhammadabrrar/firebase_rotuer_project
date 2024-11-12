@@ -1,7 +1,9 @@
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from "firebase/auth";
 import React, { createContext, useEffect, useState } from "react";
@@ -10,31 +12,45 @@ import { auth } from "../Firebase/Firebase.init";
 export const authContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
+  // google auth provider
+  const googleProvider = new GoogleAuthProvider();
+
   // set state for manage users guard
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const name = " Potato";
   // user creation
   const createUser = (email, password) => {
+    setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   // sing in with email and password
 
   const singInUser = (email, password) => {
+    setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
   //   sign out user functionality
   const signOutUser = () => {
+    setLoading(true);
     return signOut(auth);
   };
+
+  //   google authentication
+
+  const signInWithGoogle = () => {
+    return signInWithPopup(auth, googleProvider);
+  };
+
   const authInfo = {
-    name,
     user,
+    loading,
     createUser,
     singInUser,
     signOutUser,
+    signInWithGoogle,
   };
 
   //   manage users for guard
@@ -42,6 +58,7 @@ const AuthProvider = ({ children }) => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       console.log("current user", currentUser);
       setUser(currentUser);
+      setLoading(false);
     });
 
     return () => {
